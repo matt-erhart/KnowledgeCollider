@@ -2,7 +2,10 @@ import React, { Component } from 'react';
 import { connect } from 'react-redux';
 import selector from './selector'
 import { schemeCategory20 } from 'd3-scale';
-import { InteractiveForceGraph, ForceGraph, ForceGraphNode, ForceGraphLink } from 'react-vis-force';
+import InteractiveForceGraph from './react-vis-force/src/components/InteractiveForceGraph';
+import ForceGraphNode from        './react-vis-force/src/components/ForceGraphNode';
+import ForceGraphLink from        './react-vis-force/src/components/ForceGraphLink';
+
 import 'bootstrap/dist/css/bootstrap.css'
 import './App.css';
 
