@@ -1,0 +1,17 @@
+.App {
+  text-align: left;
+  font-size: xx-small;
+}
+.flexContainer {
+  display: flex;
+  align-content:stretch;
+  align-items: stretch;
+}
+.flexItem {
+  flex: 1
+}
+
+.list-group-item {
+  padding: 2px;
+}
+
