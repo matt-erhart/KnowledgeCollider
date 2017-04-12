@@ -18,8 +18,8 @@
 // OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN
 // THE SOFTWARE.
 
-import React, { PropTypes, Children, cloneElement } from 'react';
-
+import React, { Children, cloneElement } from 'react';
+import {PropTypes} from 'prop-types'
 import './ForceGraph.css';
 import PureRenderComponent from './PureRenderComponent';
 import * as forceUtils from '../utils/d3-force';

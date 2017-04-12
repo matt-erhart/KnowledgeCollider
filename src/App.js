@@ -1,14 +1,13 @@
 import React, { Component } from 'react';
 import { connect } from 'react-redux';
 import selector from './selector'
-import { schemeCategory20 } from 'd3-scale';
 import InteractiveForceGraph from './react-vis-force/src/components/InteractiveForceGraph';
 import ForceGraphNode from        './react-vis-force/src/components/ForceGraphNode';
 import ForceGraphLink from        './react-vis-force/src/components/ForceGraphLink';
-
+// import calcBBoxes from            './react-vis-force/src/utils/calcBBoxes.js'
 import 'bootstrap/dist/css/bootstrap.css'
 import './App.css';
-
+import MeasureText from './measureText'
 function mapStateToProps(state) {
   return { 
     nodes: state.graph.nodes,
@@ -24,6 +23,9 @@ function mapDispatchToProps(dispatch) {
 }
 
 class App extends Component {
+  componentWillMount(){
+    // console.log('bbox', calcBBoxes(this.props.nodes))
+  }
   render() {
       const SelectedList = (props) => {
         //props.neighbors = {authors, nodeNames, paperNames}
@@ -52,6 +54,7 @@ class App extends Component {
 
     return (
       <div>
+        <MeasureText nodes={this.props.nodes}/>
       <InteractiveForceGraph zoom highlightDependencies>
         {/*there is also onSelectNode and onDeselectNode*/}
         {this.props.nodes.map(node => (

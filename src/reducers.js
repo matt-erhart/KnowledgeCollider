@@ -25,3 +25,10 @@ export const selectedNode = (state = {nodeID: 0 }, action) => {
         default: return state
     }
 }
+
+export const calculateBoundingBoxes = (state = [], action) => {
+    switch (action.type){
+        case 'CALC_BBOXES': return action.bboxes
+        default: return state
+    }
+}

@@ -27,8 +27,8 @@ import {
   forceX,
   forceY,
 } from 'd3-force'; //pull in as usual
-import wordWrap from './svgWordWrap'
-import bboxCollide from './boundingBoxCollide'
+// import wordWrap from './svgWordWrap'
+// import bboxCollide from './boundingBoxCollide'
 
 import setsEqual from './sets-equal'; //uber util
 
@@ -119,12 +119,12 @@ function applyManyBodyChargeForce(simulation, { strength = {} }) {
 function applyCollisionForce(simulation, { radiusMargin = 3, strength = {} }) {
   //bbox collide here
   if (!simulation.force('collide')) {
-    const rectangleCollide = bboxCollide(function (d,i) {
-          return [[-50, -50],[50, 50]]
-        })
-        .strength(.1)
-        .iterations(1)
-     simulation.force('collide', rectangleCollide);
+    // const rectangleCollide = bboxCollide(function (d,i) {
+    //       return [[-50, -50],[50, 50]]
+    //     })
+    //     .strength(.1)
+    //     .iterations(1)
+     simulation.force('collide', forceCollide());
   }
 
   // if (simulation.radiusMargin !== radiusMargin) {
