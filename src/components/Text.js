@@ -1,5 +1,6 @@
 //from https://codepen.io/techniq/pen/rLXwJJ?editors=0010
 import React, { Component } from 'react';
+import ReactDOM from 'react-dom'
 
 
 export default class Text extends Component {
@@ -16,7 +17,10 @@ export default class Text extends Component {
       lines: []
     }
   }
-  
+  componentDidMount (){
+    this.bbox = ReactDOM.findDOMNode(this).getBBox()
+  }
+
   componentWillMount() {
     const { wordsWithComputedWidth, spaceWidth } = this.calculateWordWidths();
     this.wordsWithComputedWidth = wordsWithComputedWidth;

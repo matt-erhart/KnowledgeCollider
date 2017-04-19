@@ -53,6 +53,7 @@ export default class ForceGraph extends Component {
   }
   componentDidMount() {
       if (this.Viewer) this.Viewer.fitToViewer();
+      console.log('this.text',this.text)
   }
 
   componentWillMount(){
@@ -75,15 +76,12 @@ export default class ForceGraph extends Component {
   }
 
   render() {  
-         if (true && this.state.simulationReady) {
+         if (false && this.state.simulationReady) {
            return ( 
                <ReactSVGPanZoom
                     style={{outline: "1px solid black"}}
-                    width={1024} height={1024} ref={Viewer => this.Viewer = Viewer}
-                    onClick={event => console.log('click', event.x, event.y, event.originalEvent)}
-                    onMouseMove={event => console.log('move', event.x, event.y)} >
+                    width={1024} height={1024} ref={Viewer => this.Viewer = Viewer}>
            <svg height='1500' width='1500'>
-                {console.log(this.state.graph.nodes[0].x)}
                 {this.state.graph.nodes.map((node,i)=> {
                     return <CircleCss key={node.id} cx={node.x} cy={node.y} r='5'/>
                 })}
@@ -101,8 +99,7 @@ export default class ForceGraph extends Component {
              <svg>
                     <Measure>
                       { dimensions => {
-                          console.log(dimensions)
-                          return (<Text x={50} y={50} width={100}>hey</Text>)
+                          return (<Text ref={component => this.text = component} x={50} y={50} width={100}>hey</Text>)
                       }
                       }
                     </Measure>
