@@ -1,4 +1,7 @@
 import React, { Component } from 'react';
+import Measure from 'react-measure';
+import {ReactSVGPanZoom} from 'react-svg-pan-zoom';
+
 // import {CircleCss} from '../components/Node'
 import 'bootstrap/dist/css/bootstrap.css'
 import * as d3 from 'd3'
@@ -17,6 +20,7 @@ export const CircleCss = styled.circle`
       stroke: lightblue;
     }
 `
+
 export const LinkCss = styled.line`
     stroke: darkgrey;
     stroke-width: 2px;
@@ -43,6 +47,13 @@ export default class ForceGraph extends Component {
   state = {simulationReady: false,
            graph: graph,
            percentComplete: 0  }  
+  constructor(props, context) {
+      super(props, context);
+      this.Viewer = null;
+  }
+  componentDidMount() {
+      if (this.Viewer) this.Viewer.fitToViewer();
+  }
 
   componentWillMount(){
         var simulation = d3.forceSimulation()
@@ -64,8 +75,13 @@ export default class ForceGraph extends Component {
   }
 
   render() {  
-         if (false && this.state.simulationReady) {
+         if (true && this.state.simulationReady) {
            return ( 
+               <ReactSVGPanZoom
+                    style={{outline: "1px solid black"}}
+                    width={1024} height={1024} ref={Viewer => this.Viewer = Viewer}
+                    onClick={event => console.log('click', event.x, event.y, event.originalEvent)}
+                    onMouseMove={event => console.log('move', event.x, event.y)} >
            <svg height='1500' width='1500'>
                 {console.log(this.state.graph.nodes[0].x)}
                 {this.state.graph.nodes.map((node,i)=> {
@@ -77,9 +93,22 @@ export default class ForceGraph extends Component {
                 {this.state.graph.links.map((link,i)=> {
                     return <LinkCss key={link.id} x1={link.source.x} y1={link.source.y} x2={link.target.x} y2={link.target.y}/>
                 })}
-            </svg>)
+            </svg>
+            </ReactSVGPanZoom>
+            )
          } else {
-             return <svg><Text x={50} y={50} width={100}>is this working the way I want it to?</Text></svg>
+            return (
+             <svg>
+                    <Measure>
+                      { dimensions => {
+                          console.log(dimensions)
+                          return (<Text x={50} y={50} width={100}>hey</Text>)
+                      }
+                      }
+                    </Measure>
+                </svg>
+            )
          }
+
   }
 }
