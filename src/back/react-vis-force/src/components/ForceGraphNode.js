@@ -22,7 +22,7 @@ import React from 'react';
 import {PropTypes} from 'prop-types'
 
 import PureRenderComponent from './PureRenderComponent';
-import nodePropTypes from '../propTypes/node';
+import nodePropTypes       from '../propTypes/node';
 
 export default class ForceGraphNode extends PureRenderComponent {
   static get propTypes() {

@@ -6,9 +6,9 @@ import {store} from './index'
 
 export default class MeasureText extends Component {
   componentDidMount(){
-   this.d3Node = d3.select(ReactDOM.findDOMNode(this))
+   this.d3Node = d3.select(ReactDOM.findDOMNode(this));
    const bboxes = calcBBoxes(this.d3Node, this.props.nodes);
-   store.dispatch({type: 'CALC_BBOXES', bboxes: bboxes})
+   store.dispatch({type: 'CALC_BBOXES', bboxes: bboxes}); //will put
   }
   render() {
     return <svg></svg>

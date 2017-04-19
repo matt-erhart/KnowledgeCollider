@@ -1,7 +1,6 @@
 import {createSelector} from 'reselect'
 import _ from 'lodash'
 
-// const nodesState        = state => state.nodes;
 const selectedNodeState = state => state.selectedNode.nodeID;
 const nodesState        = state => state.graph.nodes;
 const neighborsState    = state => state.neighbors;

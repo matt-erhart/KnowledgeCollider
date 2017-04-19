@@ -1,13 +1,16 @@
 import React, { Component } from 'react';
 import { connect } from 'react-redux';
 import selector from './selector'
+
 import InteractiveForceGraph from './react-vis-force/src/components/InteractiveForceGraph';
 import ForceGraphNode from        './react-vis-force/src/components/ForceGraphNode';
 import ForceGraphLink from        './react-vis-force/src/components/ForceGraphLink';
-// import calcBBoxes from            './react-vis-force/src/utils/calcBBoxes.js'
+import MeasureText from './measureText'
+import Test from './SelectedList'
+
 import 'bootstrap/dist/css/bootstrap.css'
 import './App.css';
-import MeasureText from './measureText'
+
 function mapStateToProps(state) {
   return { 
     nodes: state.graph.nodes,
@@ -51,11 +54,12 @@ class App extends Component {
         return <ul className="flexItem list-group"> <li className="list-group-item"> select a node </li> </ul>
       }
     }
-
+if (false) {
     return (
       <div>
-        <MeasureText nodes={this.props.nodes}/>
-      <InteractiveForceGraph zoom highlightDependencies>
+        
+       <MeasureText nodes={this.props.nodes}/>
+        <InteractiveForceGraph zoom highlightDependencies>
         {/*there is also onSelectNode and onDeselectNode*/}
         {this.props.nodes.map(node => (
           <ForceGraphNode
@@ -83,6 +87,9 @@ class App extends Component {
       </div>
        </div>
     );
+}
+return (<Test neighbors={this.props.selectedNeighbors}></Test>)
+
   }
 }
 
