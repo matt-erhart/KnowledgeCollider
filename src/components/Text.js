@@ -37,9 +37,9 @@ export default class Text extends Component {
     const { x, y } = props;
     
     return (
-      <text {...props} dy={`${dy}em`}>
+      <text {...props} dy={`${dy}em`} >
         {this.state.lines.map((word, index) => (
-          <tspan key={word + x + '-' + y} x={x} y={y} dy={`${index * lineHeight}em`}>
+          <tspan key={word+index} x={x} y={y} dy={`${index * lineHeight}em`} style={{"alignmentBaseline":"hanging"}}>
             {word}
           </tspan>
         ))}

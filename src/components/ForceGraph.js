@@ -1,7 +1,7 @@
 import React, { Component } from 'react';
 import Measure from 'react-measure';
 import {ReactSVGPanZoom} from 'react-svg-pan-zoom';
-
+import bboxCollide from './boundingBoxCollide'
 // import {CircleCss} from '../components/Node'
 import 'bootstrap/dist/css/bootstrap.css'
 import * as d3 from 'd3'
@@ -46,18 +46,42 @@ export const RectCss = styled.rect`
 export default class ForceGraph extends Component {
   state = {simulationReady: false,
            graph: graph,
-           percentComplete: 0  }  
+           percentComplete: 0,
+           bboxesReady: false,
+           bboxes: []   }  
   constructor(props, context) {
       super(props, context);
       this.Viewer = null;
-  }
-  componentDidMount() {
-      if (this.Viewer) this.Viewer.fitToViewer();
-      console.log('this.text',this.text)
+      this.bboxes = [];
   }
 
-  componentWillMount(){
-        var simulation = d3.forceSimulation()
+  componentDidMount() {
+      if (this.Viewer) this.Viewer.fitToViewer();
+      var boxes = graph.nodes.reduce((acc, node) => {
+            var out = {[node.id]: { id: node.id, width: this.refs[node.id].bbox.width,
+                       height: this.refs[node.id].bbox.height }}
+            return Object.assign(acc, out)
+      },[])
+      this.setState({bboxes: boxes})
+  }
+
+  componentDidUpdate(){
+      console.count('n componentDidUpdate:')
+      
+      if (this.state.bboxes && !this.state.simulationReady){
+        let bbox_array = [];
+        graph.nodes.forEach((node,i) => {
+            let bbox = this.state.bboxes[node.id];
+            graph.nodes[i].bbox = bbox;
+            bbox_array.push([[-bbox.width /2, -bbox.height/2], [bbox.width /2, bbox.height/2]])
+        })
+        let rectangleCollide = bboxCollide(function (d,i) {
+                    return bbox_array[i]
+                    })
+                    .strength(.9)
+                    .iterations(1)
+        
+     var simulation = d3.forceSimulation()
         .force("link", d3.forceLink().id(function (d) {
             if (!d.id) debugger
             return d.id;
@@ -65,47 +89,51 @@ export default class ForceGraph extends Component {
         .force("charge", d3.forceManyBody())
         .velocityDecay(.6)
         .force("center", d3.forceCenter(500,500))
-        .on('tick', () => {
+        .force("collide", rectangleCollide)
+        .on('end', () => {
             this.setState({simulationReady: true, graph: graph})
         } )
         simulation.nodes(graph.nodes)
         simulation.force("link").links(graph.links)
-        setTimeout(function() {
+        setTimeout(() => {
             simulation.stop()
-        }, 5000);
-  }
+            this.setState({simulationReady: true, graph: graph})
+        }, 5000);               
+      }
+    }
+    
+
+  componentWillMount(){   }
 
   render() {  
-         if (false && this.state.simulationReady) {
-           return ( 
-               <ReactSVGPanZoom
-                    style={{outline: "1px solid black"}}
-                    width={1024} height={1024} ref={Viewer => this.Viewer = Viewer}>
-           <svg height='1500' width='1500'>
-                {this.state.graph.nodes.map((node,i)=> {
-                    return <CircleCss key={node.id} cx={node.x} cy={node.y} r='5'/>
-                })}
-                {this.state.graph.nodes.map((node,i)=> {
-                    return <RectCss key={node.id} x={node.x-10} y={node.y-10} width='20' height='20'/>
-                })}
-                {this.state.graph.links.map((link,i)=> {
-                    return <LinkCss key={link.id} x1={link.source.x} y1={link.source.y} x2={link.target.x} y2={link.target.y}/>
-                })}
-            </svg>
-            </ReactSVGPanZoom>
-            )
-         } else {
-            return (
-             <svg>
-                    <Measure>
-                      { dimensions => {
-                          return (<Text ref={component => this.text = component} x={50} y={50} width={100}>hey</Text>)
-                      }
-                      }
-                    </Measure>
+    
+
+        // console.log(this.state.bboxes,this.state.simulationReady)
+        if (this.state.bboxes && this.state.simulationReady) {
+            return (<svg height='1500' width='1500'>
+                    {this.state.graph.nodes.map((node, i) => {
+                        return <Text key={node.id} x={node.x} y={node.y} width={100}>{node.name}</Text>
+                    })}
+                    {this.state.graph.nodes.map((node, i) => {
+                        return (<rect key={'rect-' + node.id} x={node.x} y={node.y}
+                         width={node.bbox.width} height={node.bbox.height} style={{'fill': 'none', 'stroke': 'black'}}
+                         />)
+                    })}
                 </svg>
             )
-         }
+        } else {
+             return (
+            <svg height='1500' width='1500'>
+                    {this.state.graph.nodes.map((node, i) => {
+                        return <Text key={'text-' + node.id} ref={node.id}
+                            x={50} y={50} width={100}>{node.name}</Text>
+                    })}
+                </svg>
+             )
+        }
 
+
+          return (<h1>...</h1>)
+      
   }
 }

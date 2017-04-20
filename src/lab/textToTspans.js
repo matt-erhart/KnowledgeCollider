@@ -1,0 +1,4 @@
+//text component in react
+
+
+//
