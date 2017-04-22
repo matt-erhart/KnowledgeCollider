@@ -1,3 +1,5 @@
+/* eslint-disable */
+
 import {quadtree} from "d3-quadtree";
 
 export default function bboxCollide (bbox) {

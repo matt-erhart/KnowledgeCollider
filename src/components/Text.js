@@ -19,6 +19,7 @@ export default class Text extends Component {
   }
   componentDidMount (){
     this.bbox = ReactDOM.findDOMNode(this).getBBox()
+    //could also has to redux here
   }
 
   componentWillMount() {
@@ -48,7 +49,7 @@ export default class Text extends Component {
   }
   
   componentDidUpdate(nextProps, nextState) {
-    if (this.props.children != nextProps.children) {
+    if (this.props.children !== nextProps.children) {
       const { wordsWithComputedWidth, spaceWidth } = this.calculateWordWidths();
       this.wordsWithComputedWidth = wordsWithComputedWidth;
       this.spaceWidth = spaceWidth; 
@@ -56,7 +57,7 @@ export default class Text extends Component {
     
     const lines = this.calculateLines(this.wordsWithComputedWidth, this.spaceWidth, this.props.width);
     const newLineAdded = this.state.lines.length !== lines.length;
-    const wordMoved = this.state.lines.some((line, index) => line.length != lines[index].length);
+    const wordMoved = this.state.lines.some((line, index) => line.length !== lines[index].length);
     // Only update if number of lines or length of any lines change
     if (newLineAdded || wordMoved) {
       this.setState({ lines }) 
