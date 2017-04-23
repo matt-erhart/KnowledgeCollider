@@ -10,11 +10,12 @@ import styled from 'styled-components';
 import Text from './Text'; 
 import * as marks from './Marks'; //namespace import: all Marks exports into marks.*
 import forceSimulation from '../services/ForceSimulation'
-
+import './text.css'
 function mapStateToProps(state) {
   return { 
     graph: state.graph,
-    selectedNeighbors: selector(state)
+    selectedNeighbors: selector(state),
+    selectedNode: state.selectedNode
  }
 }
 
@@ -80,20 +81,27 @@ class ForceGraph extends Component {
                     {this.props.graph.nodes.map((node, i) => {
                         let {id, x, y, name} = node; //destructuring
                         let {width, height}  = node.bbox;
+                        let isSelected = this.props.selectedNode.nodeID === node.id;
                         return (
-                        <g key={'g-' + id}>
+                        <g key={'g-' + id}   >
                             <circle key={'circle-' + id} cx={x} cy={y}
-                            r='8' style={marks.circleStyle(node)}
+                            r='8' style={marks.circleStyle(node, isSelected)}
                             />
-                            <Text style={marks.styleText(node)} key={'text-' + id} 
-                                x={x - (width/2)} y={y- (height/2)} width={125}>
-                                {name}
-                            </Text>
-                            <marks.RectCss key={'rect-' + id} rx="5" ry="5"
+                            <marks.RectCss key={'rect-' + id} rx="5" ry="5" 
                                 x={x-this.state.padOffset - (width/2)} 
                                 y={y-this.state.padOffset - (height/2)}
                                 width={width} height={height}
+                                onClick={(e) => this.props.selectNode(id)}
+                                isSelected = {isSelected}
+                                className='hover'
                             />
+                            <Text style={marks.styleText(node, isSelected)}
+                                key={'text-' + id} 
+                                x={x - (width/2)} y={y- (height/2)} width={125}
+                                >
+                                {name}
+                            </Text>
+                            
                          </g>
                          )
                     })}

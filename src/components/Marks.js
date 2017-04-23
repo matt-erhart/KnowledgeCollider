@@ -9,8 +9,9 @@ styled-components offer many benefits over inline styles
 
 import styled from 'styled-components';
 
-export const circleStyle = (node) => {
-    let opacity = .2;
+// Circles
+export const circleStyle = (node, isSelected) => {
+    let opacity = isSelected? .1: .2;
     let color = 'white'
     switch (node.type){
         case 'author': color = 'red'; break;
@@ -23,6 +24,7 @@ export const circleStyle = (node) => {
     }
 }
 
+// Links
 export const hideAuthorEdges = (linkType) => {
     let hideEdge = (linkType === "paper-edge" || linkType === "author-paper-edge");
     return hideEdge ? 'none':'black' 
@@ -39,7 +41,8 @@ export const LinkCss = styled.line`
     stroke-opacity: .2;
 `
 
-export const styleText = (node) => {
+//Text: seems to need inline styles to get text measurements to work
+export const styleText = (node, isSelected) => {
     let opacity  = 0;
     let isPaper  = (node.type === "paper");
     let isAuthor = (node.type === "author");
@@ -49,18 +52,22 @@ export const styleText = (node) => {
     let logSize = parseInt(6 + Math.log(node.paperID.length) * 10).toString()
     let fontSize = logSize < 10 ? 10+'px' : logSize+'px';
     let fill = (isRoot || isAuthor)? 'darkgrey' : 'black'
+    opacity  = isSelected? 1: opacity;
+
     return {
-        'opacity': opacity,
+        'fillOpacity': opacity,
         'fontSize': fontSize,
         'fill': fill,
         'fontWeight': 'bold',
-        'fontFamily': 'Helvetica'
+        'fontFamily': 'Helvetica',
+        'pointerEvents': 'none'
     }
 }
 
+//rects
 export const RectCss = styled.rect`
     fill: blue;
-    fill-opacity: 0;
+    fill-opacity: ${props => props.isSelected? .6 : 0};
     stroke: darkgrey;
     stroke-width: 5px;
     stroke-opacity: 0;
