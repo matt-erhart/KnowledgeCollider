@@ -1,8 +1,8 @@
 import { createStore, applyMiddleware, combineReducers } from 'redux';
+import { composeWithDevTools } from 'redux-devtools-extension';
 import { createLogger } from 'redux-logger'
 import thunk from 'redux-thunk';
-import {importAuthorsJSON, importGraphJSON, importNeighborsJSON, importPapersJSON,
-         selectedNode, calculateBoundingBoxes} from './reducers';
+import * as reducers from './reducers';
 
 const configureStore = () => {
   const middlewares = [thunk];
@@ -11,16 +11,15 @@ const configureStore = () => {
   }
 
 let rootReducer = combineReducers({
-  graph: importGraphJSON,
-  authors: importAuthorsJSON,
-  neighbors: importNeighborsJSON,
-  papers: importPapersJSON,
-  selectedNode,
-  bboxes: calculateBoundingBoxes
+  graph: reducers.graph,
+  authors: reducers.importAuthorsJSON,
+  neighbors: reducers.importNeighborsJSON,
+  papers: reducers.importPapersJSON,
+  selectedNode: reducers.selectedNode,
 })
   return createStore(
     rootReducer,
-    applyMiddleware(...middlewares)
+    composeWithDevTools(applyMiddleware(...middlewares))
   );
 };
 
