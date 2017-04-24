@@ -64,11 +64,14 @@ export const styleText = (node, isSelected) => {
     }
 }
 
-//rects
+//rects: &:hover is something only styled components can do via css in js
 export const RectCss = styled.rect`
     fill: blue;
     fill-opacity: ${props => props.isSelected? .6 : 0};
     stroke: darkgrey;
     stroke-width: 5px;
     stroke-opacity: 0;
+    &:hover ~ text tspan {
+        fill-opacity: 1;
+    }
 `

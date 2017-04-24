@@ -1,7 +1,7 @@
 /* eslint-disable */
 import React, { Component } from 'react';
 import { connect } from 'react-redux';
-import selector from '../redux/selector'
+// import selector from '../redux/selector'
 import {ReactSVGPanZoom} from 'react-svg-pan-zoom';
 import 'bootstrap/dist/css/bootstrap.css';
 import graphjson from     '../assets/data/graph.json';
@@ -10,18 +10,23 @@ import styled from 'styled-components';
 import Text from './Text'; 
 import * as marks from './Marks'; //namespace import: all Marks exports into marks.*
 import forceSimulation from '../services/ForceSimulation'
-import './text.css'
+import _ from 'lodash'
+
 function mapStateToProps(state) {
   return { 
     graph: state.graph,
-    selectedNeighbors: selector(state),
-    selectedNode: state.selectedNode
+    selectedNodeID: state.selectedNodes.selectedNodeID,
+    lockedNodes: state.selectedNodes.lockedNodes
  }
 }
 
 function mapDispatchToProps(dispatch) {
   return {
-    selectNode: (id) => dispatch({ type: 'NODE_SELECTED', nodeID: id }),
+    selectNode: (id) => dispatch({ type: 'SELECT_NODE', nodeID: id }),
+    unSelectNode: (id) => dispatch({ type: 'UNSELECT_NODE' }),
+    lockNode: (id) => dispatch({ type: 'LOCK_NODE', nodeID: id }),
+    unlockNode: (id) => dispatch({ type: 'UNLOCK_NODE', nodeID: id }),
+
     setGraph: (graph) => dispatch({type: 'SET_GRAPH', graph}),
     loadLocalGraph: (graph) => dispatch({type: 'GET_LOCAL_STORAGE_GRAPH', graph}),
   }
@@ -56,13 +61,8 @@ class ForceGraph extends Component {
         }
   }
 
-  componentDidUpdate(){}
-    
-  componentWillMount(){  
-      //comment this out to make a fresh simulation
-        // var localGraph = JSON.parse(localStorage.getItem('graph')) || [];
-        // this.setState({graph: localGraph, simulationReady: true})
-   }
+  componentDidUpdate(){ }
+  componentWillMount(){ }
 
   render() {  
         // console.log(this.state.bboxes,this.state.simulationReady)
@@ -81,7 +81,7 @@ class ForceGraph extends Component {
                     {this.props.graph.nodes.map((node, i) => {
                         let {id, x, y, name} = node; //destructuring
                         let {width, height}  = node.bbox;
-                        let isSelected = this.props.selectedNode.nodeID === node.id;
+                        let isSelected = this.props.selectedNodeID === node.id;
                         return (
                         <g key={'g-' + id}   >
                             <circle key={'circle-' + id} cx={x} cy={y}
@@ -91,9 +91,14 @@ class ForceGraph extends Component {
                                 x={x-this.state.padOffset - (width/2)} 
                                 y={y-this.state.padOffset - (height/2)}
                                 width={width} height={height}
-                                onClick={(e) => this.props.selectNode(id)}
+                                onClick={(e) => isSelected?  this.props.unSelectNode(): this.props.selectNode(id)}
                                 isSelected = {isSelected}
-                                className='hover'
+                                onContextMenu={(e) => {
+                                    e.preventDefault();
+                                    console.log(this.props.lockedNodes, id)
+                                    let isLocked = _.includes(this.props.lockedNodes, id);
+                                    isLocked? this.props.unlockNode(id): this.props.lockNode(id)
+                                    }}
                             />
                             <Text style={marks.styleText(node, isSelected)}
                                 key={'text-' + id} 
