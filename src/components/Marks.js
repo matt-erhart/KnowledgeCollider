@@ -53,25 +53,33 @@ export const styleText = (node, isSelected) => {
     let fontSize = logSize < 10 ? 10+'px' : logSize+'px';
     let fill = (isRoot || isAuthor)? 'darkgrey' : 'black'
     opacity  = isSelected? 1: opacity;
-
     return {
         'fillOpacity': opacity,
         'fontSize': fontSize,
         'fill': fill,
         'fontWeight': 'bold',
         'fontFamily': 'Helvetica',
-        'pointerEvents': 'none'
+        'pointerEvents': 'none',
     }
 }
 
 //rects: &:hover is something only styled components can do via css in js
 export const RectCss = styled.rect`
-    fill: blue;
-    fill-opacity: ${props => props.isSelected? .6 : 0};
+    fill: darkgrey;
+    fill-opacity: ${props => props.isSelected? .3 : 0};
     stroke: darkgrey;
-    stroke-width: 5px;
-    stroke-opacity: 0;
+    stroke-width: 2px;
+    stroke-opacity: ${props => props.isSelected? 1: 0};
+
+    &:active {
+        stroke-opacity: 1;
+        fill-opacity: .3;
+    }
+    &:hover {
+        fill-opacity: .3
+    }
     &:hover ~ text tspan {
         fill-opacity: 1;
+        fill: 'black';
     }
 `
