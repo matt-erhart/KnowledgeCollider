@@ -2,33 +2,30 @@
 import React, { Component } from 'react';
 import { connect } from 'react-redux';
 // import selector from '../redux/selector'
+import activationSelector from '../redux/activationSelector'
 import {ReactSVGPanZoom} from 'react-svg-pan-zoom';
 import 'bootstrap/dist/css/bootstrap.css';
 import graphjson from     '../assets/data/graph.json';
-import activations from '../assets/data/activations0.5.json';
 import styled from 'styled-components';
 import Text from './Text'; 
 import * as marks from './Marks'; //namespace import: all Marks exports into marks.*
 import forceSimulation from '../services/ForceSimulation'
 import _ from 'lodash'
+import * as d3 from 'd3'
 
 function sortNodes(){
-    graph.nodes =  _.sortBy(graph.nodes, [function(node) { return node.id; }])
-    let nodeIDs = graph.nodes.map(x => x.id);
-    //get the nodes idxs for each link
-    // map over links and search nodes for ixs, add [ix1, ix2] to each link, 
+    graphjson.nodes =  _.sortBy(graphjson.nodes, [function(node) { return node.id; }])
+    let nodeIDs = graphjson.nodes.map(x => x.id);
     const getIDs = (link) => [nodeIDs.indexOf(link.target), nodeIDs.indexOf(link.source)]
-    graph.links.map( (link,i) => graph.links[i].nodeIxs = getIDs(link) )
-    window.activationsAll = {25: activations25, 50: activations50, 75: activations75}
-    console.log('graph',graph)
-    window.selectedActivation = '50'
+    graphjson.links.forEach( (link,i) => link.nodeIxs = getIDs(link) )
 }
 
 function mapStateToProps(state) {
   return { 
     graph: state.graph,
     selectedNodeID: state.selectedNodes.selectedNodeID,
-    lockedNodes: state.selectedNodes.lockedNodes
+    lockedNodes: state.selectedNodes.lockedNodes,
+    selectedActivations: activationSelector(state)
  }
 }
 
@@ -53,19 +50,6 @@ class ForceGraph extends Component {
       this.Viewer = null;
   }
 
-  nodeActivationFromSelection = (selectedNodeID, lockedNodes) => {
-    let allSelected = selectedNodeID? [selectedNodeID, ...lockedNodes]: lockedNodes;
-    let activationArray = allSelected.map((id, i) => activations[id]);
-    var zippedActivations = _.zip.apply(_, activationArray);
-    var aggActivations = zippedArr.map(row => jStat(row).geomean())
-    const scaleFunc = (ix) => {return (jStat.log([1 + aggActivations[ix]]))};
-    let sortedNodesActivations = aggActivations.map(activation => scaleFunc(activation));
-    let linkActivations = this.props.graph.links.map((link,i)=>{
-        var nodesMean = jStat([aggActivations[link.nodeIxs[0]],aggActivations[link.nodeIxs[1]]]).mean();
-        return nodesMean < .2 ? .2 : nodesMean * 1.5;
-    })
-    return {nodes: sortedNodesActivations, links: linkActivations}
-  }
 
   componentDidMount() {
       if (this.Viewer) this.Viewer.fitToViewer();
@@ -75,6 +59,7 @@ class ForceGraph extends Component {
         if (localGraph.hasOwnProperty('nodes')) {
             this.props.loadLocalGraph(localGraph)
         } else {
+        sortNodes()
         var boxes = graphjson.nodes.forEach((node, i) => {
             node.bbox = { //.refs is a react ref to a DOM text element we need to measure
                 width:  this.refs[node.id].bbox.width + this.state.pad,
@@ -87,13 +72,20 @@ class ForceGraph extends Component {
         }
   }
 
-  componentDidUpdate(){ }
+  componentDidUpdate(){
+      console.log(this.props.selectedActivations)
+   }
   componentWillMount(){ }
 
   render() {  
-        // console.log(this.state.bboxes,this.state.simulationReady)
+
+        let extent = d3.extent(this.props.selectedActivations.nodes);//(d) => d3.interpolateWarm(d3.scaleLog(d).domain(extent))
+        let colorScale = d3.scaleSequential(d3.interpolateWarm)
+        .domain(d3.extent(extent));
+
         if (this.props.graph.hasOwnProperty('nodes')) {
             return (
+            <div>
             <ReactSVGPanZoom background='white' tool='auto'
                     style={{outline: "1px solid black"}}
                     width={1200} height={1024} ref={Viewer => this.Viewer = Viewer}>
@@ -105,6 +97,7 @@ class ForceGraph extends Component {
                         x2={link.target.x} y2={link.target.y}/>
                     })}
                     {this.props.graph.nodes.map((node, i) => {
+                        //console.log(colorScale(this.props.selectedActivations.nodes[i]), this.props.selectedActivations.nodes[i])
                         let {id, x, y, name} = node; //destructuring
                         let {width, height}  = node.bbox;
                         let isSelected = this.props.selectedNodeID === node.id;
@@ -125,6 +118,7 @@ class ForceGraph extends Component {
                                     let isLocked = _.includes(this.props.lockedNodes, id);
                                     isLocked? this.props.unlockNode(id): this.props.lockNode(id)
                                     }}
+                                activationColor={colorScale(this.props.selectedActivations.nodes[i])}    
                             />
                             <Text style={marks.styleText(node, isSelected)}
                                 key={'text-' + id} 
@@ -138,6 +132,9 @@ class ForceGraph extends Component {
                     })}
                 </svg>
                 </ReactSVGPanZoom>
+                {this.props.selectedActivations.nodes.slice().sort()
+                    .map((val,i) => <span key={i} style={{'backgroundColor': colorScale(val), 'outlineColor':'black'}}> {val} </span>)}
+                </div>
             )
         } else { 
             /* run this first to get the size of text labels. Then, in componentdidmount,

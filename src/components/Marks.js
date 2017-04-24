@@ -65,11 +65,11 @@ export const styleText = (node, isSelected) => {
 
 //rects: &:hover is something only styled components can do via css in js
 export const RectCss = styled.rect`
-    fill: darkgrey;
-    fill-opacity: ${props => props.isSelected? .3 : 0};
-    stroke: darkgrey;
-    stroke-width: 2px;
-    stroke-opacity: ${props => props.isSelected? 1: 0};
+    fill: ${props => props.activationColor? props.activationColor: 'darkgrey'};;
+    fill-opacity: ${props => props.isSelected? .3 : .1};
+    stroke: ${props => props.activationColor? props.activationColor: 'darkgrey'};
+    stroke-width: 4px;
+    stroke-opacity: ${props => props.isSelected? 1: .5};
 
     &:active {
         stroke-opacity: 1;
