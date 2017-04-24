@@ -12,6 +12,18 @@ import * as marks from './Marks'; //namespace import: all Marks exports into mar
 import forceSimulation from '../services/ForceSimulation'
 import _ from 'lodash'
 
+function sortNodes(){
+    graph.nodes =  _.sortBy(graph.nodes, [function(node) { return node.id; }])
+    let nodeIDs = graph.nodes.map(x => x.id);
+    //get the nodes idxs for each link
+    // map over links and search nodes for ixs, add [ix1, ix2] to each link, 
+    const getIDs = (link) => [nodeIDs.indexOf(link.target), nodeIDs.indexOf(link.source)]
+    graph.links.map( (link,i) => graph.links[i].nodeIxs = getIDs(link) )
+    window.activationsAll = {25: activations25, 50: activations50, 75: activations75}
+    console.log('graph',graph)
+    window.selectedActivation = '50'
+}
+
 function mapStateToProps(state) {
   return { 
     graph: state.graph,
@@ -39,6 +51,20 @@ class ForceGraph extends Component {
   constructor(props, context) {
       super(props, context);
       this.Viewer = null;
+  }
+
+  nodeActivationFromSelection = (selectedNodeID, lockedNodes) => {
+    let allSelected = selectedNodeID? [selectedNodeID, ...lockedNodes]: lockedNodes;
+    let activationArray = allSelected.map((id, i) => activations[id]);
+    var zippedActivations = _.zip.apply(_, activationArray);
+    var aggActivations = zippedArr.map(row => jStat(row).geomean())
+    const scaleFunc = (ix) => {return (jStat.log([1 + aggActivations[ix]]))};
+    let sortedNodesActivations = aggActivations.map(activation => scaleFunc(activation));
+    let linkActivations = this.props.graph.links.map((link,i)=>{
+        var nodesMean = jStat([aggActivations[link.nodeIxs[0]],aggActivations[link.nodeIxs[1]]]).mean();
+        return nodesMean < .2 ? .2 : nodesMean * 1.5;
+    })
+    return {nodes: sortedNodesActivations, links: linkActivations}
   }
 
   componentDidMount() {

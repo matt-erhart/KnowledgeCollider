@@ -19,7 +19,7 @@ export const importPapersJSON = () => { return papers }
 export const selectNodes = (state = {selectedNodeID: '', lockedNodes: []}, action) => {
     console.log('selectnodes reducer',state)
     switch (action.type){
-        case 'SELECT_NODE': return {...state, selectedNodeID: action.nodeID }
+        case 'SELECT_NODE': return   {...state, selectedNodeID: action.nodeID }
         case 'UNSELECT_NODE': return {...state, selectedNodeID: ''}
         case 'LOCK_NODE':      
             return {...state, lockedNodes: _.concat(state.lockedNodes, action.nodeID)}
