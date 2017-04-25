@@ -3,16 +3,17 @@ import {createSelector} from 'reselect';
 import _ from 'lodash';
 import stats from 'simple-statistics'
 const activationSettings = state => state.activationSettings;
-const allActivations = state => state.activations;
 const links = state => state.graph.links;
 const lockedNodes = state => state.selectedNodes.lockedNodes;
 const selectedNodeID   = state => state.selectedNodes.selectedNodeID;
-
+import activations25 from '../assets/data/activations0.25.json';
+import activations50 from '../assets/data/activations0.5.json';
+import activations75 from '../assets/data/activations0.75.json';
+const allActivations = {25: activations25, 50: activations50, 75: activations75} 
 
 const nodeActivationFromSelection = (activationSettings, allActivations, links, lockedNodes, selectedNodeID) => {
     let activations = allActivations[activationSettings.activationLevel];
     let allSelected = selectedNodeID? _.uniq([selectedNodeID, ...lockedNodes]): lockedNodes;
-    console.log(allSelected)
     let activationArray = allSelected.map((id, i) => activations[id]);
     var zippedActivations = _.zip.apply(_, activationArray);
     var aggActivations = zippedActivations.map(row => stats.geometricMean(row));

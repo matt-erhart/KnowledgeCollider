@@ -1,4 +1,7 @@
 /* eslint-disable */
+//update is slow because the reducers are slow
+//could use immutable.js or take some data out of the store
+//or improve the activationSelector
 import React, { Component } from 'react';
 import { connect } from 'react-redux';
 import activationSelector from '../redux/activationSelector'
@@ -16,7 +19,7 @@ import LevelMenu from './LevelMenu'
 const Input = (props) => {
     return (
     <form onSubmit={e=>{e.preventDefault()}}>
-       <input type="number" name="topN" value={props.topN} onChange={e => props.setTopN(parseInt(e.target.value))}></input>
+       <input type="number" name="topN" value={props.topN} onChange={e =>  props.setTopN(parseInt(e.target.value))}></input>
     </form>
     )
 }
@@ -49,8 +52,9 @@ function mapDispatchToProps(dispatch) {
     setGraph: (graph) => dispatch({type: 'SET_GRAPH', graph}),
     loadLocalGraph: (graph) => dispatch({type: 'GET_LOCAL_STORAGE_GRAPH', graph}),
 
-    setTopN: (num) => dispatch({type: 'SET_TOP_N_ACTIVATIONS', topN: num}),
+    setTopN: (num) => dispatch({type: 'SET_TOP_N_ACTIVATIONS$', topN: num}),
     setActivationLevel: (level) => dispatch({type: 'SET_ACTIVATION_LEVEL', activationLevel: level})
+
   }
 }
 
@@ -66,9 +70,7 @@ class ForceGraph extends Component {
 
   componentDidMount() {
       if (this.Viewer) this.Viewer.fitToViewer();
-        // let test = JSON.parse(localStorage.getItem("graph"))
-        // console.log('test', test)
-        let localGraph = JSON.parse(localStorage.getItem("graph"));
+        let localGraph = JSON.parse(localStorage.getItem("graph")) || [];
         if (localGraph.hasOwnProperty('nodes')) {
             this.props.loadLocalGraph(localGraph)
         } else {
@@ -91,10 +93,6 @@ class ForceGraph extends Component {
 
   render() {  
 
-        // let extent = d3.extent(this.props.selectedActivations.nodes);//(d) => d3.interpolateWarm(d3.scaleLog(d).domain(extent))
-        // let colorScale = d3.scaleSequential(d3.interpolate("white", "green"))
-        // .domain(d3.extent(extent));
-console.log(this.props.selectedActivations.links)
         if (this.props.graph.hasOwnProperty('nodes')) {
             return (
             <div>
