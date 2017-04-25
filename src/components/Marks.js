@@ -27,7 +27,7 @@ export const circleStyle = (node, isSelected) => {
 // Links
 export const hideAuthorEdges = (linkType) => {
     let hideEdge = (linkType === "paper-edge" || linkType === "author-paper-edge");
-    return hideEdge ? 'none':'black' 
+    return hideEdge ? 'none':'darkgrey' 
 }
 export const dashAnalogies = (linkType) => {return (linkType === "analogy") ? "5,5": 'none'}
 export const colorAnalogies = (linkType) => {
@@ -37,12 +37,12 @@ export const colorAnalogies = (linkType) => {
 export const LinkCss = styled.line`
     stroke: ${props => hideAuthorEdges(props.linkType)};
     stroke-dasharray: ${props => dashAnalogies(props.linkType)};
-    stroke-width: 1px;
-    stroke-opacity: .2;
+    stroke-width: ${props=> props.activation > 0? props.activation*2: 1};
+    stroke-opacity: ${props=> props.activation > 0? props.activation: .2};
 `
 
 //Text: seems to need inline styles to get text measurements to work
-export const styleText = (node, isSelected) => {
+export const styleText = (node, isSelected, isLocked, activation) => {
     let opacity  = 0;
     let isPaper  = (node.type === "paper");
     let isAuthor = (node.type === "author");
@@ -52,7 +52,8 @@ export const styleText = (node, isSelected) => {
     let logSize = parseInt(6 + Math.log(node.paperID.length) * 10).toString()
     let fontSize = logSize < 10 ? 10+'px' : logSize+'px';
     let fill = (isRoot || isAuthor)? 'darkgrey' : 'black'
-    opacity  = isSelected? 1: opacity;
+    opacity  = (isSelected||isLocked||activation)? 1: opacity;
+    fill = activation? 'black': fill;
     return {
         'fillOpacity': opacity,
         'fontSize': fontSize,
@@ -65,18 +66,20 @@ export const styleText = (node, isSelected) => {
 
 //rects: &:hover is something only styled components can do via css in js
 export const RectCss = styled.rect`
-    fill: ${props => props.activationColor? props.activationColor: 'darkgrey'};;
-    fill-opacity: ${props => props.isSelected? .3 : .1};
-    stroke: ${props => props.activationColor? props.activationColor: 'darkgrey'};
-    stroke-width: 4px;
-    stroke-opacity: ${props => props.isSelected? 1: .5};
-
+    fill: lightgrey;
+    fill-opacity: ${props => (props.isSelected||props.activation||props.isLocked)? .5:0};
+    stroke: ${props => {
+        return (props.isSelected || props.isLocked)? 'black':'none'
+    }};
+    stroke-width: ${props => props.isLocked? '3px': '1px'};
     &:active {
         stroke-opacity: 1;
-        fill-opacity: .3;
+        fill-opacity: 1;
+        stroke-width: '1px';
+        stroke: 'black';
     }
     &:hover {
-        fill-opacity: .3
+        fill-opacity: .5;
     }
     &:hover ~ text tspan {
         fill-opacity: 1;

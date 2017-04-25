@@ -35,9 +35,10 @@ export const selectNodes = (state = {selectedNodeID: '', lockedNodes: []}, actio
     }
 }
 
-export const selectActivationLevel = (state = '50', action) => {
+export const activationSettings = (state = {activationLevel: '50', topN: 10 }, action) => {
     switch (action.type){
-        case 'SET_ACTIVATION_LEVEL': return action.selectActivationLevel
+        case 'SET_ACTIVATION_LEVEL': return {...state, activationLevel: action.activationLevel}
+        case 'SET_TOP_N_ACTIVATIONS': return{...state, topN: action.topN}
         default: return state
     }
 }

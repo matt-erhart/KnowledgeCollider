@@ -16,7 +16,7 @@ let rootReducer = combineReducers({
   neighbors: reducers.importNeighborsJSON,
   papers: reducers.importPapersJSON,
   activations: reducers.importActivationsJSON,
-  activationLevel: reducers.selectActivationLevel,
+  activationSettings: reducers.activationSettings,
   selectedNodes: reducers.selectNodes,
 })
   return createStore(

@@ -1,7 +1,6 @@
 /* eslint-disable */
 import React, { Component } from 'react';
 import { connect } from 'react-redux';
-// import selector from '../redux/selector'
 import activationSelector from '../redux/activationSelector'
 import {ReactSVGPanZoom} from 'react-svg-pan-zoom';
 import 'bootstrap/dist/css/bootstrap.css';
@@ -12,6 +11,15 @@ import * as marks from './Marks'; //namespace import: all Marks exports into mar
 import forceSimulation from '../services/ForceSimulation'
 import _ from 'lodash'
 import * as d3 from 'd3'
+import LevelMenu from './LevelMenu'
+
+const Input = (props) => {
+    return (
+    <form onSubmit={e=>{e.preventDefault()}}>
+       <input type="number" name="topN" value={props.topN} onChange={e => props.setTopN(parseInt(e.target.value))}></input>
+    </form>
+    )
+}
 
 function sortNodes(){
     graphjson.nodes =  _.sortBy(graphjson.nodes, [function(node) { return node.id; }])
@@ -25,7 +33,9 @@ function mapStateToProps(state) {
     graph: state.graph,
     selectedNodeID: state.selectedNodes.selectedNodeID,
     lockedNodes: state.selectedNodes.lockedNodes,
-    selectedActivations: activationSelector(state)
+    selectedActivations: activationSelector(state),
+    topN: state.activationSettings.topN,
+    activationLevel: state.activationSettings.activationLevel
  }
 }
 
@@ -38,6 +48,9 @@ function mapDispatchToProps(dispatch) {
 
     setGraph: (graph) => dispatch({type: 'SET_GRAPH', graph}),
     loadLocalGraph: (graph) => dispatch({type: 'GET_LOCAL_STORAGE_GRAPH', graph}),
+
+    setTopN: (num) => dispatch({type: 'SET_TOP_N_ACTIVATIONS', topN: num}),
+    setActivationLevel: (level) => dispatch({type: 'SET_ACTIVATION_LEVEL', activationLevel: level})
   }
 }
 
@@ -73,37 +86,40 @@ class ForceGraph extends Component {
   }
 
   componentDidUpdate(){
-      console.log(this.props.selectedActivations)
    }
   componentWillMount(){ }
 
   render() {  
 
-        let extent = d3.extent(this.props.selectedActivations.nodes);//(d) => d3.interpolateWarm(d3.scaleLog(d).domain(extent))
-        let colorScale = d3.scaleSequential(d3.interpolateWarm)
-        .domain(d3.extent(extent));
-
+        // let extent = d3.extent(this.props.selectedActivations.nodes);//(d) => d3.interpolateWarm(d3.scaleLog(d).domain(extent))
+        // let colorScale = d3.scaleSequential(d3.interpolate("white", "green"))
+        // .domain(d3.extent(extent));
+console.log(this.props.selectedActivations.links)
         if (this.props.graph.hasOwnProperty('nodes')) {
             return (
             <div>
-            <ReactSVGPanZoom background='white' tool='auto'
+            <ReactSVGPanZoom background='white' tool='auto' toolbarPosition='none'
                     style={{outline: "1px solid black"}}
                     width={1200} height={1024} ref={Viewer => this.Viewer = Viewer}>
             <svg height='1200' width='1024'>
                     {this.props.graph.links.map((link,i)=> {
                         return <marks.LinkCss key={'link-' + i + link.id} 
                         linkType={link.type}
-                        x1={link.source.x} y1={link.source.y} 
-                        x2={link.target.x} y2={link.target.y}/>
+                        x1={link.source.x-this.state.padOffset} y1={link.source.y-this.state.padOffset} 
+                        x2={link.target.x-this.state.padOffset} y2={link.target.y-this.state.padOffset}
+                        activation={this.props.selectedActivations.links[i]}
+                        />
                     })}
                     {this.props.graph.nodes.map((node, i) => {
                         //console.log(colorScale(this.props.selectedActivations.nodes[i]), this.props.selectedActivations.nodes[i])
                         let {id, x, y, name} = node; //destructuring
                         let {width, height}  = node.bbox;
                         let isSelected = this.props.selectedNodeID === node.id;
+                        let isLocked = _.includes(this.props.lockedNodes, node.id)
+                        let activation = this.props.selectedActivations.nodes[i] === 1;
                         return (
                         <g key={'g-' + id}   >
-                            <circle key={'circle-' + id} cx={x} cy={y}
+                            <circle key={'circle-' + id} cx={x-this.state.padOffset} cy={y-this.state.padOffset}
                             r='8' style={marks.circleStyle(node, isSelected)}
                             />
                             <marks.RectCss key={'rect-' + id} rx="5" ry="5" 
@@ -114,13 +130,12 @@ class ForceGraph extends Component {
                                 isSelected = {isSelected}
                                 onContextMenu={(e) => {
                                     e.preventDefault();
-                                    console.log(this.props.lockedNodes, id)
-                                    let isLocked = _.includes(this.props.lockedNodes, id);
                                     isLocked? this.props.unlockNode(id): this.props.lockNode(id)
                                     }}
-                                activationColor={colorScale(this.props.selectedActivations.nodes[i])}    
+                                activation={activation}
+                                isLocked={isLocked}
                             />
-                            <Text style={marks.styleText(node, isSelected)}
+                            <Text style={marks.styleText(node, isSelected, isLocked, activation)}
                                 key={'text-' + id} 
                                 x={x - (width/2)} y={y- (height/2)} width={125}
                                 >
@@ -132,8 +147,8 @@ class ForceGraph extends Component {
                     })}
                 </svg>
                 </ReactSVGPanZoom>
-                {this.props.selectedActivations.nodes.slice().sort()
-                    .map((val,i) => <span key={i} style={{'backgroundColor': colorScale(val), 'outlineColor':'black'}}> {val} </span>)}
+                Minimum activation rank <Input setTopN={this.props.setTopN} topN={this.props.topN}></Input> 
+                <LevelMenu setActivationLevel={this.props.setActivationLevel}></LevelMenu>
                 </div>
             )
         } else { 

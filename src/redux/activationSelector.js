@@ -2,39 +2,38 @@
 import {createSelector} from 'reselect';
 import _ from 'lodash';
 import stats from 'simple-statistics'
-const activationLevel = state => state.activationLevel;
+const activationSettings = state => state.activationSettings;
 const allActivations = state => state.activations;
 const links = state => state.graph.links;
 const lockedNodes = state => state.selectedNodes.lockedNodes;
 const selectedNodeID   = state => state.selectedNodes.selectedNodeID;
 
 
-const nodeActivationFromSelection = (activationLevel, allActivations, links, lockedNodes, selectedNodeID) => {
-    console.log('level',activationLevel,
-    'activations', allActivations,
-     'links', links, 
-     'locked', lockedNodes,
-     'selected', selectedNodeID)
-    let activations = allActivations[activationLevel];
-    let allSelected = selectedNodeID? [selectedNodeID, ...lockedNodes]: lockedNodes;
+const nodeActivationFromSelection = (activationSettings, allActivations, links, lockedNodes, selectedNodeID) => {
+    let activations = allActivations[activationSettings.activationLevel];
+    let allSelected = selectedNodeID? _.uniq([selectedNodeID, ...lockedNodes]): lockedNodes;
+    console.log(allSelected)
     let activationArray = allSelected.map((id, i) => activations[id]);
     var zippedActivations = _.zip.apply(_, activationArray);
     var aggActivations = zippedActivations.map(row => stats.geometricMean(row));
-    let sortedNodesActivations = aggActivations.map(activation => Math.log(activation));
+    let sortByValue = aggActivations.slice().sort().reverse();
+    let minRank = activationSettings.topN+allSelected.length;
+    let topActivations = aggActivations.map(val => sortByValue.indexOf(val) < minRank? 1:0);//top 10 not locked
+    
     if (links){
         let linkActivations = 
         links.map((link,i)=>{
-            var nodesMean = stats.mean([aggActivations[link.nodeIxs[0]],aggActivations[link.nodeIxs[1]]]);
-            return nodesMean < .2 ? .2 : nodesMean * 1.5;
+            var nodesMean = stats.mean([topActivations[link.nodeIxs[0]],topActivations[link.nodeIxs[1]]]);
+            return nodesMean;
         });  
-        return {nodes: sortedNodesActivations, links: linkActivations};
+        return {nodes: topActivations, links: linkActivations};
     } else {
        return {nodes: [], links: []};
     }
   }
 
   export default createSelector(
-        activationLevel,
+        activationSettings,
         allActivations,
         links,
         lockedNodes,
