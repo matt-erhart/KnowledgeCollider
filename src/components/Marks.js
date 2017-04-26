@@ -8,7 +8,7 @@ styled-components offer many benefits over inline styles
 */
 
 import styled from 'styled-components';
-
+import Rectangle from './Rectangle'
 // Circles
 export const circleStyle = (node, isSelected) => {
     let opacity = isSelected? .1: .2;
@@ -65,7 +65,7 @@ export const styleText = (node, isSelected, isLocked, activation) => {
 }
 
 //rects: &:hover is something only styled components can do via css in js
-export const RectCss = styled.rect`
+export const RectCss = styled(Rectangle)`
     fill: lightgrey;
     fill-opacity: ${props => (props.isSelected||props.activation||props.isLocked)? .5:0};
     stroke: ${props => {

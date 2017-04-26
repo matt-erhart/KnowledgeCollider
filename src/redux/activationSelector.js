@@ -6,10 +6,7 @@ const activationSettings = state => state.activationSettings;
 const links = state => state.graph.links;
 const lockedNodes = state => state.selectedNodes.lockedNodes;
 const selectedNodeID   = state => state.selectedNodes.selectedNodeID;
-import activations25 from '../assets/data/activations0.25.json';
-import activations50 from '../assets/data/activations0.5.json';
-import activations75 from '../assets/data/activations0.75.json';
-const allActivations = {25: activations25, 50: activations50, 75: activations75} 
+const allActivations = state => state.activations;
 
 const nodeActivationFromSelection = (activationSettings, allActivations, links, lockedNodes, selectedNodeID) => {
     let activations = allActivations[activationSettings.activationLevel];
@@ -20,7 +17,7 @@ const nodeActivationFromSelection = (activationSettings, allActivations, links, 
     let sortByValue = aggActivations.slice().sort().reverse();
     let minRank = activationSettings.topN+allSelected.length;
     let topActivations = aggActivations.map(val => sortByValue.indexOf(val) < minRank? 1:0);//top 10 not locked
-    
+
     if (links){
         let linkActivations = 
         links.map((link,i)=>{

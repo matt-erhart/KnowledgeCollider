@@ -15,14 +15,11 @@ import forceSimulation from '../services/ForceSimulation'
 import _ from 'lodash'
 import * as d3 from 'd3'
 import LevelMenu from './LevelMenu'
-
-const Input = (props) => {
-    return (
-    <form onSubmit={e=>{e.preventDefault()}}>
-       <input type="number" name="topN" value={props.topN} onChange={e =>  props.setTopN(parseInt(e.target.value))}></input>
-    </form>
-    )
-}
+import SimpleForm from './Input'
+import Circle from './Circle'
+import Rectangle from './Rectangle'
+import Line from './Line'
+import Input from './Input'
 
 function sortNodes(){
     graphjson.nodes =  _.sortBy(graphjson.nodes, [function(node) { return node.id; }])
@@ -96,12 +93,12 @@ class ForceGraph extends Component {
         if (this.props.graph.hasOwnProperty('nodes')) {
             return (
             <div>
-            <ReactSVGPanZoom background='white' tool='auto' toolbarPosition='none'
+            <ReactSVGPanZoom background='white' tool='auto' toolbarPosition='none' detectAutoPan='none'
                     style={{outline: "1px solid black"}}
                     width={1200} height={1024} ref={Viewer => this.Viewer = Viewer}>
             <svg height='1200' width='1024'>
                     {this.props.graph.links.map((link,i)=> {
-                        return <marks.LinkCss key={'link-' + i + link.id} 
+                        return <Line key={'link-' + i + link.id} 
                         linkType={link.type}
                         x1={link.source.x-this.state.padOffset} y1={link.source.y-this.state.padOffset} 
                         x2={link.target.x-this.state.padOffset} y2={link.target.y-this.state.padOffset}
@@ -117,10 +114,10 @@ class ForceGraph extends Component {
                         let activation = this.props.selectedActivations.nodes[i] === 1;
                         return (
                         <g key={'g-' + id}   >
-                            <circle key={'circle-' + id} cx={x-this.state.padOffset} cy={y-this.state.padOffset}
+                            <Circle key={'circle-' + id} cx={x-this.state.padOffset} cy={y-this.state.padOffset}
                             r='8' style={marks.circleStyle(node, isSelected)}
                             />
-                            <marks.RectCss key={'rect-' + id} rx="5" ry="5" 
+                            <Rectangle key={'rect-' + id} rx="5" ry="5" 
                                 x={x-this.state.padOffset - (width/2)} 
                                 y={y-this.state.padOffset - (height/2)}
                                 width={width} height={height}
@@ -136,6 +133,7 @@ class ForceGraph extends Component {
                             <Text style={marks.styleText(node, isSelected, isLocked, activation)}
                                 key={'text-' + id} 
                                 x={x - (width/2)} y={y- (height/2)} width={125}
+                                isSelected={isSelected} isLocked={isLocked} activation={activation}
                                 >
                                 {name}
                             </Text>

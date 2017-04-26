@@ -5,6 +5,8 @@ import thunk from 'redux-thunk';
 import { combineEpics, createEpicMiddleware } from 'redux-observable';
 import * as reducers from './reducers';
 import rootEpic from './epic'
+import { reducer as formReducer } from 'redux-form'
+
 
 const epicMiddleware = createEpicMiddleware(rootEpic);
 
@@ -17,12 +19,10 @@ const configureStore = () => {
 
 let rootReducer = combineReducers({
   graph: reducers.graph,
-  authors: reducers.importAuthorsJSON,
-  neighbors: reducers.importNeighborsJSON,
-  papers: reducers.importPapersJSON,
   activations: reducers.importActivationsJSON,
   activationSettings: reducers.activationSettings,
   selectedNodes: reducers.selectNodes,
+  form: formReducer
 })
   return createStore(
     rootReducer,

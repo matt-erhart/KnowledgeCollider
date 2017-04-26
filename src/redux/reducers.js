@@ -1,7 +1,7 @@
 //data gets loaded using those import statements
-import neighbors from '../assets/data/node_neighborhoods.json'
-import authors from   "../assets/data/author_connections.json"
-import papers from    "../assets/data/papers.json"
+// import neighbors from '../assets/data/node_neighborhoods.json'
+// import authors from   "../assets/data/author_connections.json"
+// import papers from    "../assets/data/papers.json"
 import activations25 from '../assets/data/activations0.25.json';
 import activations50 from '../assets/data/activations0.5.json';
 import activations75 from '../assets/data/activations0.75.json';
@@ -16,11 +16,10 @@ export const graph = (state = {}, action) => {
         default: return state
     }    
  }
-export const importNeighborsJSON = () => { return neighbors}
-export const importAuthorsJSON = () => { return authors }
-export const importPapersJSON = () => { return papers }
+// export const importNeighborsJSON = () => { return neighbors}
+// export const importAuthorsJSON = () => { return authors }
+// export const importPapersJSON = () => { return papers }
 export const importActivationsJSON = () => { return {25: activations25, 50: activations50, 75: activations75} }
-
 
 export const selectNodes = (state = {selectedNodeID: '', lockedNodes: []}, action) => {
     console.log('selectnodes reducer',state)
@@ -38,7 +37,7 @@ export const selectNodes = (state = {selectedNodeID: '', lockedNodes: []}, actio
 export const activationSettings = (state = {activationLevel: '50', topN: 10 }, action) => {
     switch (action.type){
         case 'SET_ACTIVATION_LEVEL': return {...state, activationLevel: action.activationLevel}
-        case 'SET_TOP_N_ACTIVATIONS': return{...state, topN: action.topN}
+        case 'SET_TOP_N_ACTIVATIONS': return {...state, topN: action.topN}
         default: return state
     }
 }

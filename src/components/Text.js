@@ -29,6 +29,14 @@ export default class Text extends Component {
     const lines = this.calculateLines(this.wordsWithComputedWidth, this.spaceWidth, this.props.width);
     this.setState({ lines });
   }
+
+  shouldComponentUpdate(nextProps, nextState) {
+    let {isSelected, isLocked, activation} = this.props;
+    let selected = isSelected  !== nextProps.isSelected? true: false;
+    let locked = isLocked      !== nextProps.isLocked? true: false;
+    let activated = activation !== nextProps.activation? true: false;
+    return (selected || locked || activated)
+  }
   
   render() {
     // TODO: determine lineHeight and dy dynamically (using passed in props)
